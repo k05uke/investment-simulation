@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><title>Simulator verification</title>
+<pre id="test-results">RUNNING</pre><pre id="ui-results">UI RUNNING</pre>
+<script>window.addEventListener('error', event => { document.getElementById('test-results').textContent = `FAIL: ${event.message}`; });</script>
+<script src="../calculations.js"></script><script src="./calculations.test.js"></script>
+<iframe id="app" src="../index.html" style="width:1200px;height:900px"></iframe>
+<script>
+document.getElementById('app').addEventListener('load', function () {
+  const doc = this.contentDocument;
+  let checks = 0;
+  function assert(ok, message) { checks++; if (!ok) throw new Error(message); }
+  function change(id, value) { doc.getElementById(id).value = value; doc.getElementById(id).dispatchEvent(new Event('input', { bubbles: true })); }
+  try {
+    assert(doc.getElementById('result-value').textContent.includes('円'), '初期結果');
+    assert(doc.querySelectorAll('.sim-button').length === 6, '6種類');
+    for (const button of doc.querySelectorAll('.sim-button')) {
+      button.click();
+      assert(doc.getElementById('error').hidden, '計算成功');
+      assert(doc.querySelector('#chart svg'), 'グラフ');
+      assert(doc.querySelectorAll('#schedule tr').length > 1, '結果表');
+      change('frequency', 'year');
+      if (!['future_value', 'present_value'].includes(button.dataset.type)) assert(doc.getElementById('explanation').textContent.includes('毎年'), '年単位の説明');
+      change('timing', 'begin'); change('rate', '-20'); change('years', '50');
+      assert(doc.getElementById('error').hidden, '負利率と期首');
+      change('rate', '0'); change('amount', '0');
+      assert(doc.getElementById('result-value').textContent === '0円', 'ゼロ入力');
+      change('amount', '');
+      assert(!doc.getElementById('error').hidden && doc.getElementById('result-content').hidden, '空欄のエラー');
+      doc.getElementById('reset').click();
+      assert(doc.getElementById('error').hidden, 'リセット');
+    }
+    const buttons = doc.querySelectorAll('.sim-button');
+    buttons[0].click(); change('amount', '123456'); buttons[1].click(); buttons[0].click();
+    assert(doc.getElementById('amount').value === '123456', '種類ごとの入力保持');
+    assert(doc.documentElement.scrollWidth <= this.clientWidth, 'PC幅で横にはみ出さない');
+    this.style.width = '375px';
+    assert(doc.documentElement.scrollWidth <= 375, 'スマートフォン幅で横にはみ出さない');
+    document.getElementById('ui-results').textContent = `${checks} UI checks passed`;
+  } catch (error) { document.getElementById('ui-results').textContent = `FAIL: ${error.stack}`; }
+});
+</script></html>

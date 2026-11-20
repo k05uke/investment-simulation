@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="6つの係数で資産形成・積立・取り崩しを試算できる投資シミュレーター。">
+  <title>投資シミュレーター | 資産形成と取り崩し</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./calculations.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">▥</span> 投資シミュレーター</a><span class="header-note">資産形成から、取り崩しまで。</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">お金の未来を、数字で見てみよう</p><h1>これからの資産を、<br class="mobile-break">シミュレーション。</h1><p>積み立てる、増やす、受け取る。6つの計算で、将来のお金を考えるお手伝いをします。</p></section>
+    <nav id="simulations" aria-label="シミュレーションの種類"></nav>
+    <section class="workspace" aria-labelledby="simulation-title">
+      <aside class="panel inputs"><p id="coefficient" class="eyebrow"></p><h2 id="simulation-title"></h2><p id="description" class="muted"></p>
+        <form id="input-form">
+          <label for="amount" id="amount-label">金額（円）</label><div class="input-unit"><input id="amount" name="amount" type="number" min="0" max="1000000000000" step="any" required><span>円</span></div>
+          <label for="rate">年利率 <output id="rate-output" for="rate"></output></label><input id="rate" name="rate" type="range" min="-20" max="30" value="5" step="0.1">
+          <label for="years">期間 <output id="years-output" for="years"></output></label><input id="years" name="years" type="range" min="1" max="50" value="20" step="1">
+          <label for="frequency">計算・積立・受取の単位</label><select id="frequency" name="frequency"><option value="month">毎月</option><option value="year">毎年</option></select>
+          <div id="timing-field"><label for="timing">積立・受取のタイミング</label><select id="timing" name="timing"><option value="end">期末（各期間の終わり）</option><option value="begin">期首（各期間の始め）</option></select></div>
+          <details class="advanced"><summary>利率換算の設定</summary><label for="method">年利率から月利率への換算</label><select id="method" name="method"><option value="effective">実効月利（年利率と整合）</option><option value="simple">年利率 ÷ 12</option></select><p class="small muted">毎年の計算では年利率をそのまま使います。実効月利は (1 + 年利率)^(1/12) − 1 です。</p></details>
+          <button class="reset" type="button" id="reset">この計算を初期値に戻す</button>
+        </form>
+      </aside>
+      <div class="results"><p id="error" class="error" role="alert" hidden></p><div id="result-content">
+        <section class="result-hero" aria-live="polite" aria-atomic="true"><p id="result-label"></p><div id="result-value"></div><p id="explanation"></p></section>
+        <div id="metrics" class="metrics"></div>
+        <section class="panel chart-panel"><div class="section-heading"><h3>資産の推移</h3><span id="period-note" class="small muted"></span></div><div class="legend"><span><i class="balance-key"></i>資産残高</span><span><i class="comparison-key"></i><span id="comparison-label"></span></span></div><div id="chart"></div><p class="small muted">金額は円単位に四捨五入しています。各時点の数値は下の表で確認できます。</p></section>
+        <details class="panel table-panel"><summary>期間ごとの結果を見る</summary><div class="table-actions"><p class="small muted">初期時点と各期末の残高を表示します。</p><button type="button" id="download">CSVをダウンロード</button></div><div class="table-scroll" tabindex="0" role="region" aria-label="計算結果表"><table><caption class="sr-only">期間ごとの資産残高と比較額</caption><thead><tr><th scope="col">経過期間</th><th scope="col">資産残高</th><th scope="col" id="comparison-heading"></th></tr></thead><tbody id="schedule"></tbody></table></div></details>
+        <details class="panel formula-panel"><summary>計算方法を見る</summary><p id="formula"></p><p class="small muted">PV：現在の資産、FV：将来の資産、PMT：毎期の積立・受取額、r：1期あたりの利率、n：期間数。期首の積立額から将来額を求める場合と、受取額から現在額を求める場合は期末の式に (1 + r) を掛けます。将来額から積立額を求める場合と、現在額から受取額を求める場合は (1 + r) で割ります。利率0%では利息なしで計算します。</p></details>
+      </div></div>
+    </section>
+    <footer><strong>試算結果について</strong><p>利率が一定で続くと仮定した試算です。実際の投資収益は変動し、将来の成果を保証するものではありません。税金・手数料・インフレは考慮していません。</p><p class="small">入力と計算はブラウザー内で完結します。入力した金額をサーバーに送信する機能はありません。</p></footer>
+    <noscript><p class="error">このシミュレーターを使うには、ブラウザーのJavaScriptを有効にしてください。</p></noscript>
+  </main>
+</body>
+</html>
